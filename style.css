@@ -912,6 +912,8 @@ box-shadow:0 0 20px #00E5FF;
 }
 
 .heading-robot {
+    --move-x: 0px;
+    --move-y: 0px;
     --look-x: 0deg;
     --look-y: 0deg;
     position: relative;
@@ -919,9 +921,9 @@ box-shadow:0 0 20px #00E5FF;
     width: 34px;
     height: 42px;
     flex: 0 0 34px;
-    transform: perspective(120px) rotateX(var(--look-y)) rotateY(var(--look-x));
+    transform: translate3d(var(--move-x), var(--move-y), 0) perspective(120px) rotateX(var(--look-y)) rotateY(var(--look-x));
     transform-style: preserve-3d;
-    transition: transform 90ms ease-out;
+    transition: transform 70ms ease-out;
     pointer-events: none;
     will-change: transform;
     filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.7));
@@ -1014,7 +1016,7 @@ box-shadow:0 0 20px #00E5FF;
         width: 28px;
         height: 36px;
         flex-basis: 28px;
-        transform: perspective(100px) rotateX(var(--look-y)) rotateY(var(--look-x)) scale(0.85);
+        transform: translate3d(var(--move-x), var(--move-y), 0) perspective(100px) rotateX(var(--look-y)) rotateY(var(--look-x)) scale(0.85);
     }
 
     .about h2 {

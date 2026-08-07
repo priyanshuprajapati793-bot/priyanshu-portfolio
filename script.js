@@ -209,16 +209,22 @@ headingTargets.forEach((heading) => {
     robot.setAttribute("aria-hidden", "true");
     robot.innerHTML = '<span class="heading-robot-head"><i></i><i></i></span><span class="heading-robot-body"></span>';
     heading.append(robot);
-});
 
-document.addEventListener("pointermove", (event) => {
-    headingTargets.forEach((heading) => {
-        const robot = heading.querySelector(".heading-robot");
+    heading.addEventListener("pointermove", (event) => {
         const bounds = robot.getBoundingClientRect();
-        const x = (event.clientX - (bounds.left + bounds.width / 2)) / window.innerWidth;
-        const y = (event.clientY - (bounds.top + bounds.height / 2)) / window.innerHeight;
-        robot.style.setProperty("--look-x", `${Math.max(-1, Math.min(1, x)) * 28}deg`);
-        robot.style.setProperty("--look-y", `${Math.max(-1, Math.min(1, y)) * -28}deg`);
+        const x = Math.max(-1, Math.min(1, (event.clientX - bounds.left) / bounds.width * 2 - 1));
+        const y = Math.max(-1, Math.min(1, -((event.clientY - bounds.top) / bounds.height * 2 - 1)));
+        robot.style.setProperty("--move-x", `${x * 10}px`);
+        robot.style.setProperty("--move-y", `${-y * 7}px`);
+        robot.style.setProperty("--look-x", `${x * 32}deg`);
+        robot.style.setProperty("--look-y", `${y * -32}deg`);
+    });
+
+    heading.addEventListener("pointerleave", () => {
+        robot.style.setProperty("--move-x", "0px");
+        robot.style.setProperty("--move-y", "0px");
+        robot.style.setProperty("--look-x", "0deg");
+        robot.style.setProperty("--look-y", "0deg");
     });
 });
 
