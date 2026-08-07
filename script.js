@@ -38,6 +38,26 @@ const loader = new GLTFLoader();
 const clock = new THREE.Clock();
 let robot = null;
 let mixer = null;
+let baseRotationY = 0;
+const pointerTarget = new THREE.Vector2();
+const pointerPosition = new THREE.Vector2();
+
+function updatePointerTarget(event) {
+  const bounds = robotContainer.getBoundingClientRect();
+  pointerTarget.x = THREE.MathUtils.clamp(
+    ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+    -1,
+    1
+  );
+  pointerTarget.y = THREE.MathUtils.clamp(
+    -(((event.clientY - bounds.top) / bounds.height) * 2 - 1),
+    -1,
+    1
+  );
+}
+
+robotContainer.addEventListener("pointermove", updatePointerTarget);
+robotContainer.addEventListener("pointerleave", () => pointerTarget.set(0, 0));
 
 loader.load(
   "assets/models/robot.glb",
@@ -46,6 +66,7 @@ loader.load(
     robot.scale.set(1.8, 1.8, 1.8);
     robot.position.set(0, -1.2, 0);
     robot.rotation.y = Math.PI * 0.25;
+    baseRotationY = robot.rotation.y;
     scene.add(robot);
 
     if (gltf.animations && gltf.animations.length > 0) {
@@ -100,6 +121,7 @@ loader.load(
     fallback.userData.baseY = -0.2;
     scene.add(fallback);
     robot = fallback;
+    baseRotationY = fallback.rotation.y;
   }
 );
 
@@ -112,9 +134,12 @@ function animate() {
   }
 
   if (robot) {
-    robot.rotation.y += 0.012;
+    pointerPosition.lerp(pointerTarget, 0.08);
     const baseY = robot.userData.baseY ?? -1.2;
-    robot.position.y = Math.sin(clock.elapsedTime * 2) * 0.12 + baseY;
+    robot.position.x = pointerPosition.x * 0.42;
+    robot.position.y = Math.sin(clock.elapsedTime * 2) * 0.12 + baseY + pointerPosition.y * 0.2;
+    robot.rotation.x = pointerPosition.y * 0.08;
+    robot.rotation.y = baseRotationY + Math.sin(clock.elapsedTime * 0.8) * 0.18 + pointerPosition.x * 0.22;
   }
 
   renderer.render(scene, camera);
