@@ -200,6 +200,28 @@ setTimeout(type,speed);
 }
 
 type();
+
+const headingTargets = document.querySelectorAll(".section-title, .about h2");
+
+headingTargets.forEach((heading) => {
+    const robot = document.createElement("span");
+    robot.className = "heading-robot";
+    robot.setAttribute("aria-hidden", "true");
+    robot.innerHTML = '<span class="heading-robot-head"><i></i><i></i></span><span class="heading-robot-body"></span>';
+    heading.append(robot);
+});
+
+document.addEventListener("pointermove", (event) => {
+    headingTargets.forEach((heading) => {
+        const robot = heading.querySelector(".heading-robot");
+        const bounds = robot.getBoundingClientRect();
+        const x = (event.clientX - (bounds.left + bounds.width / 2)) / window.innerWidth;
+        const y = (event.clientY - (bounds.top + bounds.height / 2)) / window.innerHeight;
+        robot.style.setProperty("--look-x", `${Math.max(-1, Math.min(1, x)) * 28}deg`);
+        robot.style.setProperty("--look-y", `${Math.max(-1, Math.min(1, y)) * -28}deg`);
+    });
+});
+
 // Scroll To Top Button
 
 const topBtn = document.getElementById("topBtn");
