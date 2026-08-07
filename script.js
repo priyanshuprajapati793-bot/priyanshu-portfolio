@@ -1,128 +1,137 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.166/build/three.module.js";
 import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.166/examples/jsm/loaders/GLTFLoader.js";
 
-// =====================
-// Scene
-// =====================
+const robotContainer = document.getElementById("robot-container");
 
+if (robotContainer) {
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
-45,
-window.innerWidth / window.innerHeight,
-0.1,
-1000
+  35,
+  robotContainer.clientWidth / robotContainer.clientHeight,
+  0.1,
+  1000
 );
-
-camera.position.set(0, 1.5, 5);
-
-// =====================
-// Renderer
-// =====================
+camera.position.set(0, 1.1, 8);
 
 const renderer = new THREE.WebGLRenderer({
-antialias: true,
-alpha: true
+  antialias: true,
+  alpha: true,
+  powerPreference: "high-performance",
 });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(robotContainer.clientWidth, robotContainer.clientHeight);
+robotContainer.appendChild(renderer.domElement);
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-document
-.getElementById("robot-container")
-.appendChild(renderer.domElement);
-
-// =====================
-// Lights
-// =====================
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
 scene.add(ambientLight);
 
-const dirLight = new THREE.DirectionalLight(0x00e5ff, 5);
-dirLight.position.set(5, 5, 5);
-scene.add(dirLight);
+const keyLight = new THREE.DirectionalLight(0x00e5ff, 3.1);
+keyLight.position.set(4, 5, 5);
+scene.add(keyLight);
 
-// =====================
-// Loader
-// =====================
+const rimLight = new THREE.PointLight(0x7c3aed, 18, 10);
+rimLight.position.set(-4, -1, 3);
+scene.add(rimLight);
 
 const loader = new GLTFLoader();
-
-let mixer;
 const clock = new THREE.Clock();
+let robot = null;
+let mixer = null;
 
 loader.load(
+  "assets/models/robot.glb",
+  (gltf) => {
+    robot = gltf.scene;
+    robot.scale.set(1.8, 1.8, 1.8);
+    robot.position.set(0, -1.2, 0);
+    robot.rotation.y = Math.PI * 0.25;
+    scene.add(robot);
 
-"assets/models/robot.glb",
+    if (gltf.animations && gltf.animations.length > 0) {
+      mixer = new THREE.AnimationMixer(robot);
+      const action = mixer.clipAction(gltf.animations[0]);
+      action.play();
+    }
+  },
+  undefined,
+  (error) => {
+    console.error("Robot model failed to load:", error);
+    const fallback = new THREE.Group();
 
-(gltf) => {
+    const torso = new THREE.Mesh(
+      new THREE.BoxGeometry(1.6, 2, 1),
+      new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x0f172a })
+    );
+    torso.position.y = 0.6;
+    fallback.add(torso);
 
-const robot = gltf.scene;
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.58, 32, 16),
+      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, emissive: 0x0f172a })
+    );
+    head.position.y = 2.2;
+    fallback.add(head);
 
-robot.scale.set(1.8,1.8,1.8);
+    const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x67e8f9, emissive: 0x67e8f9 });
+    const leftEye = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.08), eyeMaterial);
+    const rightEye = leftEye.clone();
+    leftEye.position.set(-0.16, 2.2, 0.52);
+    rightEye.position.set(0.16, 2.2, 0.52);
+    fallback.add(leftEye, rightEye);
 
-robot.position.set(0,-1,0);
+    const armGeometry = new THREE.BoxGeometry(0.28, 1.5, 0.28);
+    const armMaterial = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 });
+    const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+    const rightArm = leftArm.clone();
+    leftArm.position.set(-1.15, 0.8, 0);
+    rightArm.position.set(1.15, 0.8, 0);
+    fallback.add(leftArm, rightArm);
 
-scene.add(robot);
+    const legGeometry = new THREE.BoxGeometry(0.32, 1.6, 0.32);
+    const leftLeg = new THREE.Mesh(legGeometry, armMaterial);
+    const rightLeg = leftLeg.clone();
+    leftLeg.position.set(-0.35, -1.1, 0);
+    rightLeg.position.set(0.35, -1.1, 0);
+    fallback.add(leftLeg, rightLeg);
 
-if(gltf.animations.length>0){
-
-mixer = new THREE.AnimationMixer(robot);
-
-const action = mixer.clipAction(gltf.animations[0]);
-
-action.play();
-
-}
-
-},
-
-undefined,
-
-(error)=>{
-
-console.log("Robot Error:",error);
-
-}
-
+    fallback.scale.setScalar(0.78);
+    fallback.position.y = -0.2;
+    fallback.userData.baseY = -0.2;
+    scene.add(fallback);
+    robot = fallback;
+  }
 );
 
-// =====================
-// Animation
-// =====================
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = clock.getDelta();
 
-function animate(){
+  if (mixer) {
+    mixer.update(delta);
+  }
 
-requestAnimationFrame(animate);
+  if (robot) {
+    robot.rotation.y += 0.012;
+    const baseY = robot.userData.baseY ?? -1.2;
+    robot.position.y = Math.sin(clock.elapsedTime * 2) * 0.12 + baseY;
+  }
 
-const delta = clock.getDelta();
-
-if(mixer){
-
-mixer.update(delta);
-
-}
-
-renderer.render(scene,camera);
-
+  renderer.render(scene, camera);
 }
 
 animate();
 
-// =====================
-// Resize
-// =====================
-
-window.addEventListener("resize",()=>{
-
-camera.aspect=window.innerWidth/window.innerHeight;
-
-camera.updateProjectionMatrix();
-
-renderer.setSize(window.innerWidth,window.innerHeight);
-
+const resizeObserver = new ResizeObserver(() => {
+  const width = robotContainer.clientWidth;
+  const height = robotContainer.clientHeight;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height);
 });
+
+resizeObserver.observe(robotContainer);
+}
 
 // =====================
 // Typing Effect

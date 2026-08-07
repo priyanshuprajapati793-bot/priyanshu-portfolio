@@ -103,9 +103,7 @@
 
         <!-- Right Side -->
         <div class="hero-image">
-
-            <div class="ai-core"></div>
-
+            <div id="robot-container" aria-label="3D animated robot"></div>
         </div>
 
     </section>
@@ -687,7 +685,14 @@
 </section>
 
     <!-- JavaScript -->
-    <script src="script.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.166/build/three.module.js"
+        }
+    }
+    </script>
+    <script type="module" src="script.js"></script>
     <footer>
 
     <p>© 2026 Priyanshu Prajapati | AI & ML Engineer</p>
