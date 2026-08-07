@@ -1,8 +1,8 @@
-# 🚀 Priyanshu Portfolio
+# Priyanshu Portfolio
 
 A modern Full Stack Portfolio Website built using HTML, CSS, JavaScript, Node.js, Express.js and MongoDB.
 
-## ✨ Features
+## Features
 
 - Responsive Portfolio Website
 - Admin Login Authentication
@@ -13,7 +13,7 @@ A modern Full Stack Portfolio Website built using HTML, CSS, JavaScript, Node.js
 - Delete Messages
 - JWT Authentication
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 - HTML
@@ -27,7 +27,7 @@ A modern Full Stack Portfolio Website built using HTML, CSS, JavaScript, Node.js
 ### Database
 - MongoDB
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 prajapati/
@@ -44,7 +44,7 @@ prajapati/
 └── README.md
 ```
 
-## 🚀 Installation
+##  Installation
 
 ```bash
 git clone https://github.com/priyanshuprajapati793-bot/priyanshu-portfolio.git
@@ -56,7 +56,7 @@ npm install
 npm run dev
 ```
 
-## 👨‍💻 Author
+##  Author
 
 **Priyanshu Prajapati**
 
@@ -64,4 +64,4 @@ AI & ML Student
 
 ---
 
-⭐ If you like this project, please give it a star on GitHub.
+ If you like this project, please give it a star on GitHub.
